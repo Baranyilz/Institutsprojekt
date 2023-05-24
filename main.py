@@ -16,6 +16,70 @@ def import_network():
         return None
 
 
+def n_1_contingency_analysis(net):
+    # limits
+    vmax = 1.05
+    vmin = 0.95
+    max_ll = 100
+
+    lines = net.line.index
+    critical_lines = list()
+
+    for line in lines:
+        # search and remove ring seperation lines iteratively from the network
+        if net.line.loc[line, "name"] == "ring_seperation_lines":
+            net.line.loc[line, "in_service"] = False
+
+        # simulate power flow
+        pp.runpp(net)
+
+        # check if limits are violated and add line to critical_lines list if so
+        if net.res_bus.vm_pu.max() > vmax or net.res_bus.vm_pu.min() < vmin or net.res_line.loading_percent.max() > max_ll:
+            critical_lines.append(line)
+
+        # reset the line status
+        net.line.loc[line, "in_service"] = True
+
+        # print the critical_lines lines
+        print(critical_lines)
+
+    line_util = []
+    max_voltage = []
+    min_voltage = []
+
+    for i in critical_lines:
+        line_util.append(net.res_line.loc[i, "loading_percent"])
+        net.line.loc[i, "in_service"] = False
+
+        pp.runpp(net, numba=False)
+
+        max_voltage_bus = net.res_bus.vm_pu.max()
+        min_voltage_bus = net.res_bus.vm_pu.min()
+        max_voltage.append(max_voltage_bus)
+        min_voltage.append(min_voltage_bus)
+
+        net.line.loc[i, "in_service"] = True
+
+    plot.figure()
+    plot.scatter(critical_lines, line_util)
+    plot.xlabel("Out of Service Line Index")
+    plot.ylabel("Line Utilization (%)")
+    plot.title("Line Utilization for critical_lines Lines")
+
+    plot.figure()
+    plot.scatter(critical_lines, max_voltage)
+    plot.xlabel("Out of Service Line Index")
+    plot.ylabel("Voltage (pu)")
+    plot.title("Max Voltage in the Network for N-1 Cases")
+
+    plot.scatter(critical_lines, min_voltage)
+    plot.xlabel("Out of Service Line Index")
+    plot.ylabel("Voltage (pu)")
+    plot.title("Min/Max Voltage in the Network for N-1 Cases")
+
+    plot.show()
+
+
 while True:
 
     print("(1): Import network\n")
@@ -55,8 +119,7 @@ while True:
 
         case "4":
             if import_successful:
-                print("N-1 contingency analysis")
-                # TODO
+                n_1_contingency_analysis(net)
             else:
                 print("Please import the network first\n")
 
