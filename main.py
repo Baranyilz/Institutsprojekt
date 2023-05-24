@@ -65,7 +65,7 @@ def n_1_contingency_analysis(net):
     plt.scatter(critical_lines, line_util)
     plt.xlabel("Out of Service Line Index")
     plt.ylabel("Line Utilization (%)")
-    plt.title("Line Utilization for critical_lines Lines")
+    plt.title("Line Utilization for Critical Lines")
 
     plt.figure()
     plt.scatter(critical_lines, max_voltage)
