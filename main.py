@@ -1,6 +1,7 @@
 import pandapower as pp
 import pandapower.plotting as plot
 import pandas as pd
+import matplotlib.pyplot as plt
 
 import_successful = False
 
@@ -31,7 +32,7 @@ def n_1_contingency_analysis(net):
             net.line.loc[line, "in_service"] = False
 
         # simulate power flow
-        pp.runpp(net)
+        pp.runpp(net, numba=False)
 
         # check if limits are violated and add line to critical_lines list if so
         if net.res_bus.vm_pu.max() > vmax or net.res_bus.vm_pu.min() < vmin or net.res_line.loading_percent.max() > max_ll:
@@ -40,8 +41,8 @@ def n_1_contingency_analysis(net):
         # reset the line status
         net.line.loc[line, "in_service"] = True
 
-        # print the critical_lines lines
-        print(critical_lines)
+    # print the critical_lines lines
+    print(critical_lines)
 
     line_util = []
     max_voltage = []
@@ -60,24 +61,24 @@ def n_1_contingency_analysis(net):
 
         net.line.loc[i, "in_service"] = True
 
-    plot.figure()
-    plot.scatter(critical_lines, line_util)
-    plot.xlabel("Out of Service Line Index")
-    plot.ylabel("Line Utilization (%)")
-    plot.title("Line Utilization for critical_lines Lines")
+    plt.figure()
+    plt.scatter(critical_lines, line_util)
+    plt.xlabel("Out of Service Line Index")
+    plt.ylabel("Line Utilization (%)")
+    plt.title("Line Utilization for critical_lines Lines")
 
-    plot.figure()
-    plot.scatter(critical_lines, max_voltage)
-    plot.xlabel("Out of Service Line Index")
-    plot.ylabel("Voltage (pu)")
-    plot.title("Max Voltage in the Network for N-1 Cases")
+    plt.figure()
+    plt.scatter(critical_lines, max_voltage)
+    plt.xlabel("Out of Service Line Index")
+    plt.ylabel("Voltage (pu)")
+    plt.title("Max Voltage in the Network for N-1 Cases")
 
-    plot.scatter(critical_lines, min_voltage)
-    plot.xlabel("Out of Service Line Index")
-    plot.ylabel("Voltage (pu)")
-    plot.title("Min/Max Voltage in the Network for N-1 Cases")
+    plt.scatter(critical_lines, min_voltage)
+    plt.xlabel("Out of Service Line Index")
+    plt.ylabel("Voltage (pu)")
+    plt.title("Min/Max Voltage in the Network for N-1 Cases")
 
-    plot.show()
+    plt.show()
 
 
 while True:
