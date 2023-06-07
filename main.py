@@ -3,12 +3,12 @@ import pandapower.plotting as plot
 import pandas as pd
 import matplotlib.pyplot as plt
 
-import_successful = False
+networks = []
 
 
 def import_network():
     try:
-        Net_Name = input("Enter the name of the network: ")
+        Net_Name = input("Enter the name of the file: ")
         iNet = pp.from_json(Net_Name, convert=True)
         print("Imported network: " + Net_Name + "\n")
         return iNet
@@ -81,50 +81,82 @@ def n_1_contingency_analysis(net):
     plt.show()
 
 
+def print_networks(list):
+    for index, net in enumerate(list):
+        print(f"Network at index {index}: {net.name}")
+
+
 while True:
 
     print("(1): Import network\n")
-    print("(2): Plot the network\n")
-    print("(3): Plot the network (advanced)\n")
-    print("(4): N-1 contingency analysis\n")
-    print("(5): Exit\n")
+    print("(2): Print imported networks\n")
+    print("(3): Plot the network\n")
+    print("(4): Plot the network (advanced)\n")
+    print("(5): N-1 contingency analysis\n")
+    print("(6): Exit\n")
 
     User_Input = input("Enter the number of your choice: ")
 
     match User_Input:
         case "1":
-            if import_successful:
-                override = input(
-                    "A network is already imported. Do you want to override it? (y/n): ")
-                if override == "y":
+            if len(networks) >= 1:
+                import_another_network = input(
+                    "Do you want to import another network? (y)es, (n)o ")
+                if import_another_network == "y":
                     net = import_network()
                     if net is not None:
-                        import_successful = True
+                        network_name = input(
+                            "Enter the name for the network: ")
+                        net.name = network_name
+                        networks.append(net)
+                elif import_another_network == "n":
+                    continue
                 else:
-                    print("Network import cancelled\n")
+                    print("Invalid input")
             else:
                 net = import_network()
                 if net is not None:
-                    import_successful = True
+                    network_name = input("Enter the name for the network: ")
+                    net.name = network_name
+                    networks.append(net)
+
         case "2":
-            if import_successful:
-                plot.simple_plot(net)
-            else:
-                print("Please import the network first\n")
+            print_networks(networks)
 
         case "3":
-            if import_successful:
-                plot.simple_plotly(net)
+            if len(networks) == 1:
+                plot.simple_plot(net)
+            elif len(networks) > 1:
+                print_networks(networks)
+                index_network = int(
+                    input("Which network do you want to plot? "))
+                plot.simple_plot(networks[index_network])
             else:
                 print("Please import the network first\n")
 
         case "4":
-            if import_successful:
-                n_1_contingency_analysis(net)
+            if len(networks) == 1:
+                plot.simple_plotly(net)
+            elif len(networks) > 1:
+                print_networks(networks)
+                index_network = int(
+                    input("Which network do you want to plot? "))
+                plot.simple_plotly(networks[index_network])
             else:
                 print("Please import the network first\n")
 
         case "5":
+            if len(networks) == 1:
+                n_1_contingency_analysis(net)
+            elif len(networks) > 1:
+                print_networks(networks)
+                index_network = int(
+                    input("Which network do you want to analyze? "))
+                n_1_contingency_analysis(networks[index_network])
+            else:
+                print("Please import the network first\n")
+
+        case "6":
             break
 
         case _:
