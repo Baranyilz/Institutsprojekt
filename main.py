@@ -23,6 +23,20 @@ def n_1_contingency_analysis(net):
     vmin = 0.95
     max_ll = 100
 
+    choose_limit = int(input(
+        "Which case do you want to check? (1) Default, (2) Feed-in, (3) High-Load"))
+
+    match choose_limit:
+        case 1:
+            net.sgen.scaling = 1.0
+            net.load.scaling = 1.0
+        case 2:
+            net.sgen.scaling = 0.8
+            net.load.scaling = 0.1
+        case 3:
+            net.sgen.scaling = 0
+            net.load.scaling = 0.6
+
     lines = net.line.index
     critical_lines = list()
 
