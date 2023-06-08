@@ -36,6 +36,10 @@ def n_1_contingency_analysis(net):
         case 3:
             net.sgen.scaling = 0
             net.load.scaling = 0.6
+        case _:
+            print("Invalid input using default values")
+            net.sgen.scaling = 1.0
+            net.load.scaling = 1.0
 
     lines = net.line.index
     critical_lines = list()
