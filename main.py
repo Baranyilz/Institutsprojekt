@@ -24,7 +24,7 @@ def n_1_contingency_analysis(net):
     max_ll = 100
 
     choose_limit = int(input(
-        "Which case do you want to check? (1) Default, (2) Feed-in, (3) High-Load"))
+        "Which case do you want to check? (1) Default, (2) Feed-in, (3) High-Load "))
 
     match choose_limit:
         case 1:
@@ -43,10 +43,31 @@ def n_1_contingency_analysis(net):
 
     lines = net.line.index
     critical_lines = list()
+    max_voltage = list()
+    min_voltage = list()
+    line_util = list()
+
+    line_name_input = int(input(
+        "Which lines do you want to remove in the analysis: (1) starting_ring_line, (2) ring_line, (3) branch_line, (4) ring_separation_line "))
+
+    line_name = " "
+
+    match line_name_input:
+        case 1:
+            line_name = "starting_ring_line"
+        case 2:
+            line_name = "ring_line"
+        case 3:
+            line_name = "branch_line"
+        case 4:
+            line_name = "ring_separation_line"
+        case _:
+            print("Invalid input, removing ring_separation_lines")
+            line_name = "ring_separation_line"
 
     for line in lines:
         # search and remove ring seperation lines iteratively from the network
-        if net.line.loc[line, "name"] == "ring_seperation_lines":
+        if net.line.loc[line, "name"] == line_name:
             net.line.loc[line, "in_service"] = False
 
         # simulate power flow
@@ -55,46 +76,22 @@ def n_1_contingency_analysis(net):
         # check if limits are violated and add line to critical_lines list if so
         if net.res_bus.vm_pu.max() > vmax or net.res_bus.vm_pu.min() < vmin or net.res_line.loading_percent.max() > max_ll:
             critical_lines.append(line)
+            max_voltage.append(net.res_bus.vm_pu.max())
+            min_voltage.append(net.res_bus.vm_pu.min())
+            line_util.append(net.res_line.loading_percent.max())
 
         # reset the line status
         net.line.loc[line, "in_service"] = True
 
-    # print the critical_lines lines
-    print(critical_lines)
-
-    line_util = []
-    max_voltage = []
-    min_voltage = []
-
-    for i in critical_lines:
-        line_util.append(net.res_line.loc[i, "loading_percent"])
-        net.line.loc[i, "in_service"] = False
-
-        pp.runpp(net, numba=False)
-
-        max_voltage_bus = net.res_bus.vm_pu.max()
-        min_voltage_bus = net.res_bus.vm_pu.min()
-        max_voltage.append(max_voltage_bus)
-        min_voltage.append(min_voltage_bus)
-
-        net.line.loc[i, "in_service"] = True
+    for l in critical_lines:
+        net.line.loc[l, "parallel"] += 1
 
     plt.figure()
     plt.scatter(critical_lines, line_util)
-    plt.xlabel("Out of Service Line Index")
-    plt.ylabel("Line Utilization (%)")
-    plt.title("Line Utilization for Critical Lines")
 
     plt.figure()
     plt.scatter(critical_lines, max_voltage)
-    plt.xlabel("Out of Service Line Index")
-    plt.ylabel("Voltage (pu)")
-    plt.title("Max Voltage in the Network for N-1 Cases")
-
     plt.scatter(critical_lines, min_voltage)
-    plt.xlabel("Out of Service Line Index")
-    plt.ylabel("Voltage (pu)")
-    plt.title("Min/Max Voltage in the Network for N-1 Cases")
 
     plt.show()
 
