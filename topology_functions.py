@@ -4,8 +4,12 @@ import pandapower.topology as top
 from collections import Counter
 import pandapower.networks as pn
 import pandapower.plotting as plt
+from itertools import islice
+import time
 
 net = pp.from_json("example.json")
+
+mg = top.create_nxgraph(net)
 
 
 def find_branch_buses(net):
@@ -33,23 +37,23 @@ def lines_connected_with_bus(net, bus):
     return line_index
 
 
-def get_line_to_bus(net, bus):
-    ''' returns the index of the line which leads to the bus
+def get_lines_to_bus(net, bus):
+    ''' returns the list of the lines which leads to the bus ina list
     '''
 
     lines = net.line.index
-    line_to_bus = None
+    line_to_bus = list()
     for line in lines:
         if net.line.loc[line, "to_bus"] == bus:
-            line_to_bus = line
+            line_to_bus.append(line)
     return line_to_bus
 
 
 def get_lines_from_bus(net, bus):
     ''' returns the index of the lines which leads away from the bus in a list
     '''
-    lines_from_bus = list()
     lines = net.line.index
+    lines_from_bus = list()
     for line in lines:
         if net.line.loc[line, "from_bus"] == bus:
             lines_from_bus.append(line)
@@ -60,13 +64,36 @@ def get_prev_bus(net, bus):
     ''' returns the previous bus of the given bus
     '''
 
-    line_to_bus = get_line_to_bus(net, bus)
-    prev_bus = net.line.loc[line_to_bus, "from_bus"]
+    line_to_bus = get_lines_to_bus(net, bus)
+    prev_bus = net.line.loc[line_to_bus[0], "from_bus"]
     return prev_bus
 
 
 def get_main_bus(net, bus):
     current_bus = bus
-    while (net.line.loc[get_line_to_bus(net, current_bus), "name"] != "starting_ring_line"):
+    while (net.line.loc[get_lines_to_bus(net, current_bus)[0], "name"] != "starting_ring_line"):
         current_bus = get_prev_bus(net, current_bus)
     return current_bus
+
+
+def get_prev_bus_nx(mg, bus):
+    cc = top.connected_component(mg, bus)
+    prev_bus = next(islice(cc, 1, None))
+    return int(prev_bus)
+
+
+# def get_main_bus_nx(net, mg, bus):
+#    '''returns the index of the main bus that is connected to the current bus.
+#    net:  pandapower net
+#    mg:  networkX map
+#    bus: current bus
+
+#    '''
+#    current_bus = bus
+#    while (net.line.loc[get_line_to_bus(net, current_bus), "name"] != "starting_ring_line"):
+#        current_bus = get_prev_bus_nx(mg, current_bus)
+#    return current_bus
+
+print(get_main_bus(net, 11))
+print(get_prev_bus(net, 5))
+print(get_main_bus(net, 41))
