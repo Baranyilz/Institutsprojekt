@@ -105,16 +105,3 @@ def get_main_bus_short(mg, net, bus):
             min_distance = distance
             nearest_main_bus = i
     return nearest_main_bus
-
-# def get_main_bus_nx(net, mg, bus):
-#    '''returns the index of the main bus that is connected to the current bus.
-#    net:  pandapower net
-#    mg:  networkX map
-#    bus: current bus
-
-
-#    '''
-#    current_bus = bus
-#    while (net.line.loc[get_line_to_bus(net, current_bus), "name"] != "starting_ring_line"):
-#        current_bus = get_prev_bus_nx(mg, current_bus)
-#    return current_bus
