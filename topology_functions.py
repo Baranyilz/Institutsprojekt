@@ -82,6 +82,25 @@ def get_prev_bus_nx(mg, bus):
     return int(prev_bus)
 
 
+def get_main_bus_short(net, bus):
+    mg = top.create_nxgraph(net)
+    main_buses = list()
+    main_bus = None
+    lines = net.line.index
+    for i in lines:
+        if net.line.loc[i, "name"] == "starting_ring_line":
+            main_bus = net.line.loc[i, "to_bus"]
+            main_buses.append(main_bus)
+
+    min_distance = 500
+    for i in main_buses:
+        distance = nx.shortest_path_length(mg, i, bus)
+
+        if distance < min_distance:
+            min_distance = distance
+            nearest_main_bus = i
+    return nearest_main_bus
+
 # def get_main_bus_nx(net, mg, bus):
 #    '''returns the index of the main bus that is connected to the current bus.
 #    net:  pandapower net
@@ -93,7 +112,3 @@ def get_prev_bus_nx(mg, bus):
 #    while (net.line.loc[get_line_to_bus(net, current_bus), "name"] != "starting_ring_line"):
 #        current_bus = get_prev_bus_nx(mg, current_bus)
 #    return current_bus
-
-print(get_main_bus(net, 11))
-print(get_prev_bus(net, 5))
-print(get_main_bus(net, 41))
