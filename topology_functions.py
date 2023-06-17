@@ -82,8 +82,13 @@ def get_prev_bus_nx(mg, bus):
     return int(prev_bus)
 
 
-def get_main_bus_short(net, bus):
-    mg = top.create_nxgraph(net)
+def get_main_bus_short(mg, net, bus):
+    """Returns the nearest main bus connected to the given bus
+    mg: nX network
+    net: pandapower network
+    bus: given bus
+
+    """
     main_buses = list()
     main_bus = None
     lines = net.line.index
@@ -106,6 +111,7 @@ def get_main_bus_short(net, bus):
 #    net:  pandapower net
 #    mg:  networkX map
 #    bus: current bus
+
 
 #    '''
 #    current_bus = bus
