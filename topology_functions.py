@@ -111,3 +111,7 @@ def shortest_distance_from_main_bus(mg, net, bus):
     main_bus = get_main_bus_short(mg, net, bus)
     shortest_distance = nx.shortest_path(mg, main_bus, bus)
     return shortest_distance
+
+
+sd = shortest_distance_from_main_bus(mg, net, 5)
+print(sd[int(len(sd)*(2/3))])
