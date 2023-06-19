@@ -1,4 +1,3 @@
-import pandapower.plotting as plot
 import pandapower as pp
 import networkx as nx
 import pandapower.topology as top
@@ -13,7 +12,7 @@ mg = top.create_nxgraph(net)
 
 
 def find_branch_buses(net):
-    ''' returns the buses which are the first element of a branch with the number of branches as a tuple  
+    ''' returns the buses which are the first element of a branch with the number of branches as a tuple
     '''
     bus_list = list()
     lines = net.line.index
@@ -128,8 +127,8 @@ def add_parallel_line_from_trafo(nx, net, bus):
     mg = top.create_nxgraph(net)
 
 
-print(shortest_distance_from_main_bus(mg, net, 5))
-add_parallel_line_from_trafo(mg, net, 5)
-# print(net.line.loc[412])
+print(shortest_distance_from_main_bus(mg, net, 168))
+add_parallel_line_from_trafo(mg, net, 168)
+print(net.line.loc[412])
 # plot.simple_plotly(net)
-print(shortest_distance_from_main_bus(mg, net, 5))
+print(shortest_distance_from_main_bus(mg, net, 168))

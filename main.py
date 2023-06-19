@@ -1,7 +1,8 @@
 import pandapower as pp
+import pandapower.topology as top
 import pandapower.plotting as plot
 import matplotlib.pyplot as plt
-
+from topology_functions import *
 networks = []
 
 
@@ -108,20 +109,6 @@ def print_networks(list):
         print(f"Network at index {index}: {net.name}")
 
 
-def add_new_line(net):
-    from_bus_input = int(input("From which bus do you want to add the line? "))
-    to_bus_input = int(input("To which bus do you want to add the line? "))
-    ohm_input = int(input("What is the resistance of the line? "))
-
-    try:
-        pp.create_switch(net, bus=from_bus_input, element=to_bus_input,
-                         et='b', closed=True, type='LS', z_ohm=ohm_input)
-        print("Succesfully created line between busses ",
-              from_bus_input, "and ", to_bus_input)
-    except:
-        print("Line creation is not succesfull!")
-
-
 while True:
 
     print("(1): Import network\n")
@@ -129,9 +116,8 @@ while True:
     print("(3): Plot the network\n")
     print("(4): Plot the network (advanced)\n")
     print("(5): N-1 contingency analysis\n")
-    print("(6): Add new line to the network\n")
-    print("(7): Save the network\n")
-    print("(8): Exit\n")
+    print("(6): Save the network\n")
+    print("(7): Exit\n")
 
     User_Input = input("Enter the number of your choice: ")
 
@@ -196,17 +182,6 @@ while True:
 
         case "6":
             if len(networks) == 1:
-                add_new_line(net)
-            elif len(networks) > 1:
-                print_networks(networks)
-                index_network = int(
-                    input("Which network do you want to add the line to? "))
-                add_new_line(networks[index_network])
-            else:
-                print("Please import the network first\n")
-
-        case "7":
-            if len(networks) == 1:
                 save_network(net, networks[0].name + ".json")
             elif len(networks) > 1:
                 print_networks(networks)
@@ -217,7 +192,7 @@ while True:
             else:
                 print("Please import the network first\n")
 
-        case "8":
+        case "7":
             break
 
         case _:
