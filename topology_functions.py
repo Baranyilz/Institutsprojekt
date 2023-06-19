@@ -119,13 +119,17 @@ def distance_between_bus(net, bus1, bus2):
     return distance
 
 
-def add_parallel_line_from_trafo(mg, net, bus):
-    shortest_path = shortest_distance_from_main_bus(mg, net, bus)
+def add_parallel_line_from_trafo(nx, net, bus):
+    shortest_path = shortest_distance_from_main_bus(nx, net, bus)
     target_bus = shortest_path[int(len(shortest_path)*(2/3))]
-    pp.create_line(net=net, from_bus=shortest_path[0], to_bus=target_bus, length_km=distance_between_bus(net, shortest_path[0], target_bus), std_type="NAYY 4x50 SE")
+    pp.create_line(net=net, from_bus=shortest_path[0], to_bus=target_bus, length_km=distance_between_bus(
+        net, shortest_path[0], target_bus), std_type="NAYY 4x50 SE")
+    global mg
+    mg = top.create_nxgraph(net)
 
 
+print(shortest_distance_from_main_bus(mg, net, 5))
 add_parallel_line_from_trafo(mg, net, 5)
-cc = lines_connected_with_bus(net, 5)
-print(cc)
-print(net.line.loc[412])
+# print(net.line.loc[412])
+# plot.simple_plotly(net)
+print(shortest_distance_from_main_bus(mg, net, 5))
