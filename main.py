@@ -1,6 +1,5 @@
 import pandapower as pp
 import pandapower.plotting as plot
-import pandas as pd
 import matplotlib.pyplot as plt
 
 networks = []

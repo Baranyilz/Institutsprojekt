@@ -1,10 +1,10 @@
+import pandapower.plotting as plot
 import pandapower as pp
 import networkx as nx
 import pandapower.topology as top
 from collections import Counter
-import pandapower.networks as pn
-import pandapower.plotting as plt
 from itertools import islice
+import math
 import time
 
 net = pp.from_json("example.json")
@@ -25,7 +25,7 @@ def find_branch_buses(net):
 
 
 def lines_connected_with_bus(net, bus):
-    ''' returns the index of lines which are connected with the bus in a list  
+    ''' returns the index of lines which are connected with the bus in a list
     '''
 
     lines = net.line.index
@@ -113,5 +113,19 @@ def shortest_distance_from_main_bus(mg, net, bus):
     return shortest_distance
 
 
-sd = shortest_distance_from_main_bus(mg, net, 5)
-print(sd[int(len(sd)*(2/3))])
+def distance_between_bus(net, bus1, bus2):
+    distance = math.sqrt(math.pow(net.bus_geodata.loc[bus1, "x"] - net.bus_geodata.loc[bus2, "x"], 2)
+                         + math.pow(net.bus_geodata.loc[bus1, "y"] - net.bus_geodata.loc[bus2, "y"], 2))
+    return distance
+
+
+def add_parallel_line_from_trafo(mg, net, bus):
+    shortest_path = shortest_distance_from_main_bus(mg, net, bus)
+    target_bus = shortest_path[int(len(shortest_path)*(2/3))]
+    pp.create_line(net = net, from_bus = shortest_path[0], to_bus = target_bus, length_km = distance_between_bus(net, shortest_path[0], target_bus), std_type = "NAYY 4x50 SE")
+
+
+add_parallel_line_from_trafo(mg, net, 5)
+cc = lines_connected_with_bus(net, 5)
+print(cc)
+print(net.line.loc[412])
