@@ -122,7 +122,7 @@ def distance_between_bus(net, bus1, bus2):
 def add_parallel_line_from_trafo(mg, net, bus):
     shortest_path = shortest_distance_from_main_bus(mg, net, bus)
     target_bus = shortest_path[int(len(shortest_path)*(2/3))]
-    pp.create_line(net = net, from_bus = shortest_path[0], to_bus = target_bus, length_km = distance_between_bus(net, shortest_path[0], target_bus), std_type = "NAYY 4x50 SE")
+    pp.create_line(net=net, from_bus=shortest_path[0], to_bus=target_bus, length_km=distance_between_bus(net, shortest_path[0], target_bus), std_type="NAYY 4x50 SE")
 
 
 add_parallel_line_from_trafo(mg, net, 5)
