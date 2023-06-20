@@ -1,6 +1,7 @@
 import pandapower as pp
 import networkx as nx
 import pandapower.topology as top
+import pandapower.plotting as plot
 from collections import Counter
 from itertools import islice
 import math
@@ -106,8 +107,57 @@ def get_main_bus_short(mg, net, bus):
     return nearest_main_bus
 
 
+def get_main_trafo(mg, net, bus):
+    """Returns the nearest main bus connected to the given bus
+    mg: nX network
+    net: pandapower network
+    bus: given bus
+
+    """
+    main_buses = list()
+    main_bus = None
+    lines = net.line.index
+    for i in lines:
+        if net.line.loc[i, "name"] == "starting_ring_line":
+            main_bus = net.line.loc[i, "from_bus"]
+            main_buses.append(main_bus)
+
+    min_distance = 500
+    for i in main_buses:
+        distance = nx.shortest_path_length(mg, i, bus)
+
+        if distance < min_distance:
+            min_distance = distance
+            nearest_main_bus = i
+    return nearest_main_bus
+
+
+def get_end_bus(mg, net, bus):
+    end_buses = list()
+    lines = net.line.index
+    for i in lines:
+        if net.line.loc[i, "name"] == "ring_separation_line":
+            end_buses.append(net.line.loc[i, "from_bus"])
+            end_buses.append(net.line.loc[i, "to_bus"])
+
+    min_distance = 500
+    for i in end_buses:
+        distance = nx.shortest_path_length(mg, i, bus)
+
+        if distance < min_distance:
+            min_distance = distance
+            nearest_end_bus = i
+    return nearest_end_bus
+
+
 def shortest_distance_from_main_bus(mg, net, bus):
     main_bus = get_main_bus_short(mg, net, bus)
+    shortest_distance = nx.shortest_path(mg, main_bus, bus)
+    return shortest_distance
+
+
+def shortest_distance_from_trafo(mg, net, bus):
+    main_bus = get_main_trafo(mg, net, bus)
     shortest_distance = nx.shortest_path(mg, main_bus, bus)
     return shortest_distance
 
@@ -118,7 +168,7 @@ def distance_between_bus(net, bus1, bus2):
     return distance
 
 
-def add_parallel_line_from_trafo(nx, net, bus):
+def add_parallel_line_from_main_bus(nx, net, bus):
     shortest_path = shortest_distance_from_main_bus(nx, net, bus)
     target_bus = shortest_path[int(len(shortest_path)*(2/3))]
     pp.create_line(net=net, from_bus=shortest_path[0], to_bus=target_bus, length_km=distance_between_bus(
@@ -127,8 +177,44 @@ def add_parallel_line_from_trafo(nx, net, bus):
     mg = top.create_nxgraph(net)
 
 
-print(shortest_distance_from_main_bus(mg, net, 168))
-add_parallel_line_from_trafo(mg, net, 168)
-print(net.line.loc[412])
-# plot.simple_plotly(net)
-print(shortest_distance_from_main_bus(mg, net, 168))
+def add_parallel_line_from_trafo(nx, net, bus):
+    shortest_path = get_branch(nx, net, bus)
+    target_bus = shortest_path[int(len(shortest_path)*(2/3))]
+    pp.create_line(net=net, from_bus=shortest_path[0], to_bus=target_bus, length_km=distance_between_bus(
+        net, shortest_path[0], target_bus), std_type="NAYY 4x50 SE")
+    net.line.loc[get_lines_to_bus(net, target_bus)[0], "in_service"] = False
+    global mg
+    mg = top.create_nxgraph(net)
+
+
+def get_branch(mg, net, bus):
+    end_bus = get_end_bus(mg, net, bus)
+    starting_bus = get_main_trafo(mg, net, bus)
+    path = nx.shortest_path(mg, starting_bus, end_bus)
+    return path
+
+
+#print(shortest_distance_from_main_bus(mg, net, 7))
+#add_parallel_line_from_trafo(mg, net, 7)
+#print(net.line.loc[412])
+## plot.simple_plotly(net)
+#print(shortest_distance_from_main_bus(mg, net, 7))
+
+
+# print(shortest_distance_from_trafo(mg, net, 7))
+# add_parallel_line_from_trafo(mg, net ,7)
+# print(shortest_distance_from_trafo(mg, net, 7))
+# print(lines_connected_with_bus(net,5))
+print(get_branch(mg, net, 72)[0])
+print(get_branch(mg, net, 7))
+add_parallel_line_from_main_bus(mg, net, 74)
+add_parallel_line_from_trafo(nx, net, 74)
+# print(net.line.loc[412])
+# print(net.line)
+# print(net.bus.loc[413])
+# print(lines_connected_with_bus(net, 411))
+# print(net.line.loc[406])
+# print(net.line.loc[411])
+
+# print(net.line.name)
+# print(nx.shortest_path(mg, 1, 2))
