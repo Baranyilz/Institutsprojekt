@@ -194,27 +194,7 @@ def get_branch(mg, net, bus):
     return path
 
 
-#print(shortest_distance_from_main_bus(mg, net, 7))
-#add_parallel_line_from_trafo(mg, net, 7)
-#print(net.line.loc[412])
-## plot.simple_plotly(net)
-#print(shortest_distance_from_main_bus(mg, net, 7))
-
-
-# print(shortest_distance_from_trafo(mg, net, 7))
-# add_parallel_line_from_trafo(mg, net ,7)
-# print(shortest_distance_from_trafo(mg, net, 7))
-# print(lines_connected_with_bus(net,5))
-print(get_branch(mg, net, 72)[0])
-print(get_branch(mg, net, 7))
-add_parallel_line_from_main_bus(mg, net, 74)
-add_parallel_line_from_trafo(nx, net, 74)
-# print(net.line.loc[412])
-# print(net.line)
-# print(net.bus.loc[413])
-# print(lines_connected_with_bus(net, 411))
-# print(net.line.loc[406])
-# print(net.line.loc[411])
-
-# print(net.line.name)
-# print(nx.shortest_path(mg, 1, 2))
+add_parallel_line_from_trafo(mg, net, 74)
+print(net.line.loc[412])
+print(shortest_distance_from_trafo(mg, net, 74))
+print(nx.shortest_path(mg, 69, 70))
