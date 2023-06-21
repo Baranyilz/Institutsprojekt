@@ -1,8 +1,8 @@
 import pandapower as pp
-import pandapower.topology as top
+# import pandapower.topology as top
 import pandapower.plotting as plot
 import matplotlib.pyplot as plt
-from topology_functions import *
+# from topology_functions import *
 networks = []
 
 
@@ -12,17 +12,14 @@ def import_network():
         iNet = pp.from_json(Net_Name, convert=True)
         print("Imported network: " + Net_Name + "\n")
         return iNet
-    except:
+    except UserWarning:
         print("File not found\n")
         return None
 
 
 def save_network(net, net_name):
-    try:
-        pp.to_json(net, filename=net_name)
-        print("Succesfully exported the network")
-    except:
-        print("Export failed")
+    pp.to_json(net, filename=net_name)
+    print("Succesfully exported the network")
 
 
 def n_1_contingency_analysis(net):

@@ -1,11 +1,11 @@
 import pandapower as pp
 import networkx as nx
 import pandapower.topology as top
-import pandapower.plotting as plot
+# import pandapower.plotting as plot
 from collections import Counter
 from itertools import islice
 import math
-import time
+# import time
 
 net = pp.from_json("example.json")
 
@@ -13,7 +13,8 @@ mg = top.create_nxgraph(net)
 
 
 def find_branch_buses(net):
-    ''' returns the buses which are the first element of a branch with the number of branches as a tuple
+    ''' returns the buses which are the first element
+    of a branch with the number of branches as a tuple
     '''
     bus_list = list()
     lines = net.line.index
@@ -194,7 +195,9 @@ def get_branch(mg, net, bus):
     return path
 
 
-add_parallel_line_from_trafo(mg, net, 74)
-print(net.line.loc[412])
-print(shortest_distance_from_trafo(mg, net, 74))
-print(nx.shortest_path(mg, 69, 70))
+# add_parallel_line_from_trafo(mg, net, 74)
+# print(net.line.loc[412])
+# print(shortest_distance_from_trafo(mg, net, 74))
+# print(nx.shortest_path(mg, 69, 70))
+# gc = pp.plotting.create_generic_coordinates(net, mg=None, library='igraph', respect_switches=True, overwrite=True)
+# pp.plotting.simple_plotly(net)
